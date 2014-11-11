@@ -1,3 +1,5 @@
+
+
 /*  Pcsx - Pc Psx Emulator
  *  Copyright (C) 1999-2002  Pcsx Team
  *
@@ -41,42 +43,36 @@ unsigned long gpuDisp;
 
 int StatesC = 0;
 extern int UseGui;
-int ShowPic = 0;
 
 void gpuShowPic() {
 	gchar *state_filename;
 	gzFile f;
+	unsigned char *pMem;
 
-	if (!ShowPic) {
-		unsigned char *pMem;
+	pMem = (unsigned char *) malloc(128*96*3);
+	if (pMem == NULL) return;
 
-		pMem = (unsigned char *) malloc(128*96*3);
-		if (pMem == NULL) return;
+	state_filename = get_state_filename (StatesC);
 
-		state_filename = get_state_filename (StatesC);
+	GPU_freeze(2, (GPUFreeze_t *)&StatesC);
 
-		GPU_freeze(2, (GPUFreeze_t *)&StatesC);
-
-		f = gzopen(state_filename, "rb");
-		if (f != NULL) {
-			gzseek(f, 32, SEEK_SET); // skip header
-			gzseek(f, sizeof(u32), SEEK_CUR);
-			gzseek(f, sizeof(boolean), SEEK_CUR);
-			gzread(f, pMem, 128*96*3);
-			gzclose(f);
-		} else {
-			memcpy(pMem, NoPic_Image.pixel_data, 128*96*3);
-			DrawNumBorPic(pMem, StatesC+1);
-		}
-		GPU_showScreenPic(pMem);
-
-		free(pMem);
-		ShowPic = 1;
-		g_free (state_filename);
+	f = gzopen(state_filename, "rb");
+	if (f != NULL) {
+		gzseek(f, 32, SEEK_SET); // skip header
+		gzseek(f, sizeof(u32), SEEK_CUR);
+		gzseek(f, sizeof(boolean), SEEK_CUR);
+		gzread(f, pMem, 128*96*3);
+		gzclose(f);
 	} else {
-		GPU_showScreenPic(NULL);
-		ShowPic = 0;
+		memcpy(pMem, NoPic_Image.pixel_data, 128*96*3);
+		DrawNumBorPic(pMem, StatesC+1);
 	}
+	GPU_showScreenPic(pMem);
+
+	free(pMem);
+	g_free (state_filename);
+
+	vblank_count_hideafter = 2*50; // show pic for about 2 seconds
 }
 
 void KeyStateSave(int i) {
@@ -220,15 +216,14 @@ void PADhandleKey(int key) {
 			state_save (state_filename);
 
 			g_free (state_filename);
-
-			if (ShowPic) { ShowPic = 0; gpuShowPic(); }
+			gpuShowPic();
 
 			break;
 		case XK_F2:
 			if (StatesC < (MAX_SLOTS - 1)) StatesC++;
 			else StatesC = 0;
 			GPU_freeze(2, (GPUFreeze_t *)&StatesC);
-			if (ShowPic) { ShowPic = 0; gpuShowPic(); }
+			gpuShowPic();
 			break;
 		case XK_F3:
 			state_filename = get_state_filename (StatesC);
@@ -240,7 +235,7 @@ void PADhandleKey(int key) {
 			// returned from compiled code. This WILL cause memory leak, however a
 			// large amount of refactor is needed for a proper fix.
 			if (Config.Cpu == CPU_DYNAREC) psxCpu->Execute();
-
+			gpuShowPic();
 			break;
 		case XK_F4:
 			gpuShowPic();
@@ -355,10 +350,12 @@ int _OpenPlugins() {
 	ret = GPU_open(&gpuDisp, "PCSXR", NULL);
 	if (ret < 0) { SysMessage(_("Error opening GPU plugin!")); return -1; }
 	ret = PAD1_open(&gpuDisp);
+	ret |= PAD1_init(1); // Allow setting to change during run
 	if (ret < 0) { SysMessage(_("Error opening Controller 1 plugin!")); return -1; }
 	PAD1_registerVibration(GPU_visualVibration);
 	PAD1_registerCursor(GPU_cursor);
 	ret = PAD2_open(&gpuDisp);
+	ret |= PAD2_init(2); // Allow setting to change during run
 	if (ret < 0) { SysMessage(_("Error opening Controller 2 plugin!")); return -1; }
 	PAD2_registerVibration(GPU_visualVibration);
 	PAD2_registerCursor(GPU_cursor);
@@ -464,3 +461,4 @@ void ClosePlugins() {
 		NET_pause();
 	}
 }
+

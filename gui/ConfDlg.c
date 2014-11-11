@@ -326,6 +326,7 @@ void OnConf_Pad() {
 	PADconfigure conf;
 	char Plugin[MAXPATHLEN];
 
+	// PAD 1
 	sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Pad1);
 	drv = SysLoadLibrary(Plugin);
 	if (drv == NULL) { printf("Error with file %s\n", Plugin); return; }
@@ -341,6 +342,7 @@ void OnConf_Pad() {
 
 	SysCloseLibrary(drv);
 
+	// PAD 2
 	if (strcmp(Config.Pad1, Config.Pad2) != 0) {
 		sprintf(Plugin, "%s/%s", Config.PluginsDir, Config.Pad2);
 		drv = SysLoadLibrary(Plugin);
@@ -858,22 +860,25 @@ static void OnCpu_PsxAutoClicked (GtkWidget *widget, gpointer user_data) {
 			!(gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))));
 }
 
-// When the interpreter core is deselected, disable the debugger checkbox
+// When the interpreter core is deselected, disable the debugger checkbox & rewind
 static void OnCpu_CpuClicked(GtkWidget *widget, gpointer user_data) {
-	GtkWidget *check;
+	GtkWidget *check, *rew;
 	check = GTK_WIDGET(gtk_builder_get_object(builder, "GtkCheckButton_Dbg"));
+	rew = GTK_WIDGET(gtk_builder_get_object(builder, "frame_rew"));
 
 	// Debugger is only working with interpreter not recompiler, so let's set it
-	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
+	if (!gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget))) {
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (check), FALSE);
-
+	}
 	gtk_widget_set_sensitive (check,
+			gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)));
+	gtk_widget_set_sensitive (rew,
 			gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)));
 }
 
 void OnCpu_Clicked(GtkDialog *dialog, gint arg1, gpointer user_data) {
 	GtkWidget *widget;
-	s64 tmp;
+	long unsigned int tmp;
 	long t;
 
 	widget = GTK_WIDGET(gtk_builder_get_object(builder, "GtkCombo_PsxType"));
@@ -897,7 +902,7 @@ void OnCpu_Clicked(GtkDialog *dialog, gint arg1, gpointer user_data) {
 	Config.Xa = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_Xa")));
 	Config.SioIrq = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_SioIrq")));
 	Config.Mdec = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_Mdec")));
-	Config.Cdda = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_CDDA")));
+	Config.Cdda = gtk_combo_box_get_active(GTK_COMBO_BOX(gtk_builder_get_object(builder, "GtkCombo_CDDA")));
 	Config.SlowBoot = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_SlowBoot")));
 	Config.PsxAuto = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_PsxAuto")));
 
@@ -933,6 +938,7 @@ void OnCpu_Clicked(GtkDialog *dialog, gint arg1, gpointer user_data) {
 	Config.VSyncWA = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_VSyncWA")));
 	Config.NoMemcard = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_NoMemcard")));
 	Config.Widescreen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_Widescreen")));
+	Config.HackFix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_HackFix")));
 
 	SaveConfig();
 
@@ -959,18 +965,26 @@ void OnConf_Cpu() {
 	gtk_combo_box_set_active(GTK_COMBO_BOX (widget), Config.PsxType);
 	gtk_widget_set_sensitive(GTK_WIDGET (widget), !Config.PsxAuto);
 
-	snprintf(buf, sizeof(buf), "%lu", Config.RewindCount);
+	snprintf(buf, sizeof(buf), "%u", Config.RewindCount);
 	widget = GTK_WIDGET(gtk_builder_get_object(builder, "GtkEntry_RewindCount"));
 	gtk_entry_set_text(GTK_ENTRY(widget), buf);
 
-	snprintf(buf, sizeof(buf), "%lu", Config.RewindInterval);
+	snprintf(buf, sizeof(buf), "%u", Config.RewindInterval);
 	widget = GTK_WIDGET(gtk_builder_get_object(builder, "GtkEntry_RewindInterval"));
 	gtk_entry_set_text(GTK_ENTRY(widget), buf);
+
+	// Calculate estimated memory usage
+	snprintf(buf, sizeof(buf), "%u", ((unsigned int)(((float)Config.RewindCount)*4.2f)));
+	gtk_entry_set_text(GTK_ENTRY(gtk_builder_get_object(builder, "GtkEntry_RewindMem")),
+						buf);
+
+	// Enabled only if interpreter
+	gtk_widget_set_sensitive(GTK_WIDGET(gtk_builder_get_object(builder, "frame_rew")), Config.Cpu);
 
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_Xa")), Config.Xa);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_SioIrq")), Config.SioIrq);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_Mdec")), Config.Mdec);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_CDDA")), Config.Cdda);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(gtk_builder_get_object(builder, "GtkCombo_CDDA")), Config.Cdda);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_SlowBoot")), Config.SlowBoot);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_PsxAuto")), Config.PsxAuto);
 
@@ -998,6 +1012,7 @@ void OnConf_Cpu() {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_VSyncWA")), Config.VSyncWA);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_NoMemcard")), Config.NoMemcard);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_Widescreen")), Config.Widescreen);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder, "GtkCheckButton_HackFix")), Config.HackFix);
 
 	// Setup a handler for when Close or Cancel is clicked
 	g_signal_connect_data(G_OBJECT(CpuDlg), "response",

@@ -1711,23 +1711,6 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="GtkCheckButton_CDDA">
-                        <property name="label" translatable="yes">Disable CD Audio</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="xalign">0</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">4</property>
-                        <property name="bottom_attach">5</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkCheckButton" id="GtkCheckButton_SlowBoot">
                         <property name="label" translatable="yes">Slow Boot</property>
                         <property name="visible">True</property>
@@ -1863,6 +1846,23 @@
                         <property name="y_options"></property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkCheckButton" id="GtkCheckButton_HackFix">
+                        <property name="label" translatable="yes">Compatibility hacks (Raystorm/VH-D/MML/Cart World/...)</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="xalign">0</property>
+                        <property name="draw_indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">13</property>
+                        <property name="bottom_attach">14</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
                 <child type="label">
@@ -1878,6 +1878,57 @@
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame" id="frame_pref">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label_xalign">0</property>
+                <child>
+                  <object class="GtkHBox" id="hbox51">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="border_width">5</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkLabel" id="label_cdda">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">CD Audio</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="GtkCombo_CDDA">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="model">liststore5</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -1939,11 +1990,11 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
-              <object class="GtkFrame" id="frame20">
+              <object class="GtkFrame" id="frame_rew">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label_xalign">0</property>
@@ -1952,7 +2003,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="border_width">5</property>
-                    <property name="spacing">10</property>
+                    <property name="spacing">4</property>
                     <child>
                       <object class="GtkLabel" id="label70">
                         <property name="visible">True</property>
@@ -1971,9 +2022,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="editable">True</property>
-                        <property name="max-length">5</property>
-                        <property name="width-chars">5	</property>
-                        <property name="input-purpose">GTK_INPUT_PURPOSE_DIGITS</property>
+                        <property name="max-length">3</property>
+                        <property name="width-chars">3</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1999,9 +2049,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="editable">True</property>
-                        <property name="max-length">5</property>
-                        <property name="width-chars">5</property>
-                        <property name="input-purpose">GTK_INPUT_PURPOSE_DIGITS</property>
+                        <property name="max-length">3</property>
+                        <property name="width-chars">3</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -2013,13 +2062,40 @@
                       <object class="GtkLabel" id="label72">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">rewinds</property>
+                        <property name="label" translatable="yes">rewinds = </property>
                         <property name="use_markup">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="position">4</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="GtkEntry_RewindMem">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="editable">False</property>
+                        <property name="max-length">5</property>
+                        <property name="width-chars">5</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label73">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">MB</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">6</property>
                       </packing>
                     </child>
                   </object>
@@ -2036,7 +2112,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -2422,6 +2498,15 @@
                                 <property name="label" translatable="yes">Slot _9</property>
                                 <property name="use_underline">True</property>
                                 <accelerator key="9" signal="activate" modifiers="GDK_MOD1_MASK"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="GtkMenuItem_LoadSlotRecent">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Slot _Recent</property>
+                                <property name="use_underline">True</property>
+                                <accelerator key="R" signal="activate" modifiers="GDK_MOD1_MASK"/>
                               </object>
                             </child>
                             <child>
@@ -4318,6 +4403,23 @@
       </row>
       <row>
         <col id="0" translatable="yes">Hexadecimal</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="liststore5">
+    <columns>
+      <!-- ITEMS HERE MUST MATCH psxcommon.h ENUM !-->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Enabled (Little endian)</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Disabled</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Enabled (Big endian)</col>
       </row>
     </data>
   </object>

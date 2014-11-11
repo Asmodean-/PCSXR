@@ -642,10 +642,25 @@ void psxBios_memcpy() { // 0x2a
 }
 
 void psxBios_memset() { // 0x2b
-	char *p = (char *)Ra0;
-	while (a2-- > 0) *p++ = (char)a1;
+	a1 &= 0xff;
 
-	v0 = a0; pc0 = ra;
+	if(!a0)
+	{
+		v0 = 0; 
+	}
+	else
+	{
+		v0 = a0;
+		
+		while((s32)a2 > 0)
+		{
+			a2--;
+			psxMu8ref(a0) = a1;
+			a0++;
+		}
+	}
+	
+	pc0 = ra;
 }
 
 void psxBios_memmove() { // 0x2c
@@ -799,8 +814,8 @@ void psxBios_qsort() { // 0x31
 }
 
 void psxBios_malloc() { // 0x33
-	unsigned int *chunk, *newchunk;
-	unsigned int dsize, csize, cstat;
+	unsigned int *chunk, *newchunk = NULL;
+	unsigned int dsize = 0, csize, cstat;
 	int colflag;
 #ifdef PSXBIOS_LOG
 	PSXBIOS_LOG("psxBios_%s\n", biosA0n[0x33]);
@@ -1011,6 +1026,26 @@ _start:
 	SysPrintf("%s", tmp);
 #endif
 
+	pc0 = ra;
+}
+
+void psxBios_format() { // 0x41
+	if (strcmp(Ra0, "bu00:") == 0 && Config.Mcd1[0] != '\0')
+	{
+		CreateMcd(Config.Mcd1);
+		LoadMcd(1, Config.Mcd1);
+		v0 = 1;
+	}
+	else if (strcmp(Ra0, "bu10:") == 0 && Config.Mcd2[0] != '\0')
+	{
+		CreateMcd(Config.Mcd2);
+		LoadMcd(2, Config.Mcd2);
+		v0 = 1;
+	}
+	else
+	{
+		v0 = 0;
+	}
 	pc0 = ra;
 }
 
@@ -1238,6 +1273,8 @@ void psxBios_SetMem() { // 9f
 }
 
 void psxBios__card_info() { // ab
+	// COTS password option
+	boolean nocard = (Config.NoMemcard || ((strlen(Config.Mcd1) <=0) && (strlen(Config.Mcd2) <=0)));
 #ifdef PSXBIOS_LOG
 	PSXBIOS_LOG("psxBios_%s: %x\n", biosA0n[0xab], a0);
 #endif
@@ -1245,7 +1282,7 @@ void psxBios__card_info() { // ab
 	card_active_chan = a0;
 
 //	DeliverEvent(0x11, 0x2); // 0xf0000011, 0x0004
-	DeliverEvent(0x81, 0x2); // 0xf4000001, 0x0004
+	DeliverEvent(0x81, nocard ? 0x8 : 0x2); // 0xf4000001, 0x0004
 
 	v0 = 1; pc0 = ra;
 }
@@ -1903,9 +1940,6 @@ void psxBios_firstfile() { // 42
 		bufile(2);
 	}
 
-	// firstfile() calls _card_read() internally, so deliver it's event
-	DeliverEvent(0x11, 0x2);
-
 	pc0 = ra;
 }
 
@@ -2503,7 +2537,7 @@ void psxBiosInit() {
 	biosB0[0x3c] = psxBios_getchar;
 	//biosB0[0x3e] = psxBios_gets;
 	//biosB0[0x40] = psxBios_cd;
-	//biosB0[0x41] = psxBios_format;
+	biosB0[0x41] = psxBios_format;
 	biosB0[0x42] = psxBios_firstfile;
 	biosB0[0x43] = psxBios_nextfile;
 	biosB0[0x44] = psxBios_rename;

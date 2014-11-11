@@ -92,7 +92,7 @@ typedef uint8_t boolean;
 //If running under Mac OS X, use the Localizable.strings file instead.
 #elif defined(_MACOSX)
 #ifdef PCSXRCORE
-__private_extern__ char* Pcsxr_locale_text(char* toloc);
+__private_extern char* Pcsxr_locale_text(char* toloc);
 #define _(String) Pcsxr_locale_text(String)
 #define N_(String) String
 #else
@@ -105,7 +105,7 @@ __private_extern__ char* Pcsxr_locale_text(char* toloc);
 #define PLUGLOC_x(x,y) x ## y
 #define PLUGLOC_y(x,y) PLUGLOC_x(x,y)
 #define PLUGLOC PLUGLOC_y(PCSXRPLUG,_locale_text)
-__private_extern__ char* PLUGLOC(char* toloc);
+__private_extern char* PLUGLOC(char* toloc);
 #define _(String) PLUGLOC(String)
 #define N_(String) String
 #endif
@@ -141,7 +141,7 @@ typedef struct {
 	boolean SioIrq;
 	boolean Mdec;
 	boolean PsxAuto;
-	boolean Cdda;
+	u8      Cdda;
 	boolean HLE;
 	boolean SlowBoot;
 	boolean Debug;
@@ -159,6 +159,7 @@ typedef struct {
 	u8 PsxType; // PSX_TYPE_NTSC or PSX_TYPE_PAL
 	u32 RewindCount;
 	u32 RewindInterval;
+	u8 HackFix;
 #ifdef _WIN32
 	char Lang[256];
 #endif
@@ -166,7 +167,10 @@ typedef struct {
 
 extern PcsxConfig Config;
 extern boolean NetOpened;
-extern u32 rewind_counter; // It is safe if this overflows
+
+// It is safe if these overflow
+extern u32 rewind_counter;
+extern u8 vblank_count_hideafter;
 
 #define gzfreeze(ptr, size) { \
 	if (Mode == 1) gzwrite(f, ptr, size); \
@@ -188,6 +192,12 @@ enum {
 	CPU_DYNAREC = 0,
 	CPU_INTERPRETER
 }; // CPU Types
+
+enum {
+	CDDA_ENABLED_LE = 0,
+	CDDA_DISABLED,
+	CDDA_ENABLED_BE
+}; // CDDA Types
 
 int EmuInit();
 void EmuReset();
