@@ -1091,6 +1091,7 @@ DECLARE_INTERFACE_(IDirect3DDevice2,IUnknown)
 #define IDirect3DDevice2_QueryInterface(p,a,b) (p)->QueryInterface(a,b)
 #define IDirect3DDevice2_AddRef(p)             (p)->AddRef()
 #define IDirect3DDevice2_Release(p)            (p)->Release()
+
 /*** IDirect3DDevice2 methods ***/
 #define IDirect3DDevice2_GetCaps(p,a,b)                        (p)->GetCaps(a,b)
 #define IDirect3DDevice2_SwapTextureHandles(p,a,b)             (p)->SwapTextureHandles(a,b)
@@ -1457,6 +1458,26 @@ DECLARE_INTERFACE_(IDirect3DVertexBuffer,IUnknown)
 };
 #undef INTERFACE
 
+/*****************************************************************************
+ * IDirect3DVertexBuffer7 interface
+ */
+#define INTERFACE IDirect3DVertexBuffer7
+DECLARE_INTERFACE_(IDirect3DVertexBuffer7,IUnknown)
+{
+    /*** IUnknown methods ***/
+    STDMETHOD_(HRESULT,QueryInterface)(THIS_ REFIID riid, void** ppvObject) PURE;
+    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
+    STDMETHOD_(ULONG,Release)(THIS) PURE;
+    /*** IDirect3DVertexBuffer7 methods ***/
+    STDMETHOD(Lock)(THIS_ DWORD dwFlags,LPVOID *lplpData,LPDWORD lpdwSize) PURE;
+    STDMETHOD(Unlock)(THIS) PURE;
+    STDMETHOD(ProcessVertices)(THIS_ DWORD dwVertexOp,DWORD dwDestIndex,DWORD dwCount,LPDIRECT3DVERTEXBUFFER7 lpSrcBuffer,DWORD dwSrcIndex,LPDIRECT3DDEVICE7 lpD3DDevice,DWORD dwFlags) PURE;
+    STDMETHOD(GetVertexBufferDesc)(THIS_ LPD3DVERTEXBUFFERDESC lpD3DVertexBufferDesc) PURE;
+    STDMETHOD(Optimize)(THIS_ LPDIRECT3DDEVICE7  lpD3DDevice,DWORD dwFlags) PURE;
+    STDMETHOD(ProcessVerticesStrided)(THIS_ DWORD dwVertexOp,DWORD dwDestIndex,DWORD dwCount,LPD3DDRAWPRIMITIVESTRIDEDDATA lpStrideData,DWORD dwVertexTypeDesc,LPDIRECT3DDEVICE7 lpD3DDevice,DWORD dwFlags) PURE;
+};
+#undef INTERFACE
+
 #if !defined(__cplusplus) || defined(CINTERFACE)
 /*** IUnknown methods ***/
 #define IDirect3DVertexBuffer_QueryInterface(p,a,b) (p)->lpVtbl->QueryInterface(p,a,b)
@@ -1480,26 +1501,6 @@ DECLARE_INTERFACE_(IDirect3DVertexBuffer,IUnknown)
 #define IDirect3DVertexBuffer_GetVertexBufferDesc(p,a)         (p)->GetVertexBufferDesc(a)
 #define IDirect3DVertexBuffer_Optimize(p,a,b)                  (p)->Optimize(a,b)
 #endif
-
-/*****************************************************************************
- * IDirect3DVertexBuffer7 interface
- */
-#define INTERFACE IDirect3DVertexBuffer7
-DECLARE_INTERFACE_(IDirect3DVertexBuffer7,IUnknown)
-{
-    /*** IUnknown methods ***/
-    STDMETHOD_(HRESULT,QueryInterface)(THIS_ REFIID riid, void** ppvObject) PURE;
-    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-    STDMETHOD_(ULONG,Release)(THIS) PURE;
-    /*** IDirect3DVertexBuffer7 methods ***/
-    STDMETHOD(Lock)(THIS_ DWORD dwFlags,LPVOID *lplpData,LPDWORD lpdwSize) PURE;
-    STDMETHOD(Unlock)(THIS) PURE;
-    STDMETHOD(ProcessVertices)(THIS_ DWORD dwVertexOp,DWORD dwDestIndex,DWORD dwCount,LPDIRECT3DVERTEXBUFFER7 lpSrcBuffer,DWORD dwSrcIndex,LPDIRECT3DDEVICE7 lpD3DDevice,DWORD dwFlags) PURE;
-    STDMETHOD(GetVertexBufferDesc)(THIS_ LPD3DVERTEXBUFFERDESC lpD3DVertexBufferDesc) PURE;
-    STDMETHOD(Optimize)(THIS_ LPDIRECT3DDEVICE7  lpD3DDevice,DWORD dwFlags) PURE;
-    STDMETHOD(ProcessVerticesStrided)(THIS_ DWORD dwVertexOp,DWORD dwDestIndex,DWORD dwCount,LPD3DDRAWPRIMITIVESTRIDEDDATA lpStrideData,DWORD dwVertexTypeDesc,LPDIRECT3DDEVICE7 lpD3DDevice,DWORD dwFlags) PURE;
-};
-#undef INTERFACE
 
 #if !defined(__cplusplus) || defined(CINTERFACE)
 /*** IUnknown methods ***/
